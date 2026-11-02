@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101010">
+<title>VIDEX - Assista, Crie, Compartilhe</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding-bottom:85px}
+header{padding:18px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#101010;z-index:5}
+.logo{font-size:27px;font-weight:900;letter-spacing:-1px}
+.logo span{display:inline-block;border:2px solid white;border-radius:7px;padding:2px 5px;margin-right:5px}
+button{cursor:pointer;color:white;background:#252525;border:0;border-radius:22px;padding:10px 15px}
+.search{padding:0 15px 15px}
+.search input{width:100%;padding:14px 18px;border-radius:25px;background:#242424;border:1px solid #444;color:white;font-size:15px;outline:none}
+.categories{display:flex;gap:9px;overflow-x:auto;padding:0 15px 18px}
+.categories button{white-space:nowrap}
+.categories button.active{background:white;color:black}
+h2{font-size:19px;margin:10px 16px 15px}
+.video{margin:0 0 23px}
+.thumb{height:205px;margin:0 12px;border-radius:13px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:27px;font-weight:bold;position:relative;overflow:hidden;background:linear-gradient(135deg,#444,#111)}
+.thumb small{position:absolute;bottom:9px;right:9px;background:#000;padding:5px 8px;border-radius:5px;font-size:12px}
+.video-info{display:flex;gap:11px;padding:12px 15px}
+.avatar{width:39px;height:39px;flex-shrink:0;border-radius:50%;background:#444;display:grid;place-items:center;font-weight:bold}
+.video-info h3{font-size:15px;margin:0 0 6px}
+.video-info p{font-size:12px;color:#aaa;margin:0;line-height:1.6}
+.more{margin-left:auto;color:#aaa}
+nav{position:fixed;bottom:0;left:0;right:0;background:#171717;border-top:1px solid #333;display:flex;justify-content:space-around;padding:11px 3px 17px;z-index:10}
+nav button{background:none;border-radius:10px;padding:5px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:5px}
+nav button b{font-size:21px}
+nav button.selected{color:white}
+nav button:not(.selected){color:#999}
+.page{display:none}
+.page.show{display:block}
+.short-card{height:68vh;margin:12px;border-radius:15px;background:linear-gradient(145deg,#555,#111);display:grid;place-items:center;text-align:center;font-size:25px;font-weight:bold}
+.empty{text-align:center;padding:55px 20px;color:#aaa}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo"><span>▶</span>VIDEX</div>
+ <button onclick="alert('Notificações em breve!')">♧</button>
+</header>
+
+<div class="search">
+ <input id="search" placeholder="⌕  Pesquisar vídeos..." oninput="filterVideos()">
+</div>
+
+<div class="categories">
+ <button class="active" onclick="category(this,'Todos')">Todos</button>
+ <button onclick="category(this,'Música')">Música</button>
+ <button onclick="category(this,'Jogos')">Jogos</button>
+ <button onclick="category(this,'Esportes')">Esportes</button>
+ <button onclick="category(this,'Tecnologia')">Tecnologia</button>
+</div>
+
+<main id="home" class="page show">
+ <h2>Vídeos recomendados</h2>
+ <div id="videos">
+  <article class="video" data-title="Música e diversão" data-category="Música">
+   <div class="thumb" style="background:linear-gradient(135deg,#555,#171717)">♫<small>12:45</small></div>
+   <div class="video-info"><div class="avatar">V</div><div><h3>Música e diversão 🎵</h3><p>Canal VIDEX • Vídeo de demonstração</p></div><span class="more">⋮</span></div>
+  </article>
+  <article class="video" data-title="Melhores momentos dos jogos" data-category="Jogos">
+   <div class="thumb" style="background:linear-gradient(135deg,#353535,#090909)">🎮<small>08:32</small></div>
+   <div class="video-info"><div class="avatar">G</div><div><h3>Melhores momentos dos jogos</h3><p>Game Zone • Vídeo de demonstração</p></div><span class="more">⋮</span></div>
+  </article>
+  <article class="video" data-title="Tecnologia do futuro" data-category="Tecnologia">
+   <div class="thumb" style="background:linear-gradient(135deg,#666,#222)">TECNOLOGIA<small>10:20</small></div>
+   <div class="video-info"><div class="avatar">T</div><div><h3>Tecnologia do futuro 🚀</h3><p>Mundo Tech • Vídeo de demonstração</p></div><span class="more">⋮</span></div>
+  </article>
+ </div>
+ <div id="noResults" class="empty" style="display:none">Nenhum vídeo encontrado.</div>
+</main>
+
+<section id="shorts" class="page">
+ <h2>VIDEX Shorts</h2>
+ <div class="short-card">▶<br>Seus vídeos curtos<br><small>Em breve</small></div>
+</section>
+
+<section id="publish" class="page">
+ <div class="empty"><div style="font-size:45px">＋</div><h2>Publicar vídeo</h2><p>A área de publicação será conectada ao sistema de vídeos na próxima etapa.</p><button onclick="alert('Publicação será ativada na próxima etapa!')">Começar</button></div>
+</section>
+
+<section id="subscriptions" class="page">
+ <div class="empty"><div style="font-size:40px">♧</div><h2>Inscrições</h2><p>Seus canais inscritos aparecerão aqui.</p></div>
+</section>
+
+<section id="library" class="page">
+ <div class="empty"><div style="font-size:40px">▤</div><h2>Biblioteca</h2><p>Seus vídeos favoritos e histórico aparecerão aqui.</p></div>
+</section>
+
+<nav>
+ <button class="selected" onclick="showPage('home',this)"><b>⌂</b>Início</button>
+ <button onclick="showPage('shorts',this)"><b>▷</b>Shorts</button>
+ <button onclick="showPage('publish',this)"><b>＋</b>Publicar</button>
+ <button onclick="showPage('subscriptions',this)"><b>♧</b>Inscrições</button>
+ <button onclick="showPage('library',this)"><b>▤</b>Biblioteca</button>
+</nav>
+
+<script>
+function showPage(id,btn){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+ document.getElementById(id).classList.add('show');
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('selected'));
+ btn.classList.add('selected');
+ window.scrollTo(0,0);
+}
+function filterVideos(){
+ let q=document.getElementById('search').value.toLowerCase();
+ let count=0;
+ document.querySelectorAll('.video').forEach(v=>{
+  let match=v.dataset.title.toLowerCase().includes(q);
+  v.style.display=match?'':'none';
+  if(match)count++;
+ });
+ document.getElementById('noResults').style.display=count?'none':'block';
+}
+function category(btn,name){
+ document.querySelectorAll('.categories button').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+ let count=0;
+ document.querySelectorAll('.video').forEach(v=>{
+  let match=name==='Todos'||v.dataset.category===name;
+  v.style.display=match?'':'none';
+  if(match)count++;
+ });
+ document.getElementById('noResults').style.display=count?'none':'block';
+}
+</script>
+</body>
+   </html>
+     
