@@ -1,208 +1,511 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIDEX</title>
-
+<meta name="theme-color" content="#101010">
+<title>VIDEX — Seu mundo de vídeos</title>
 <style>
-* {
-  box-sizing: border-box;
+:root {
+  color-scheme: dark;
+  --bg: #101010;
+  --surface: #1b1b1b;
+  --surface-2: #242424;
+  --line: #303030;
+  --text: #f5f5f5;
+  --muted: #a5a5a5;
+  --accent: #e50935;
 }
-
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
-  background: #101010;
-  color: white;
-  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
 }
-
+button, input { font: inherit; }
+button { cursor: pointer; }
 header {
-  padding: 20px;
-  background: #181818;
-  border-bottom: 1px solid #333;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(20,20,20,.97);
+  border-bottom: 1px solid var(--line);
+  padding: 13px 16px;
+}
+.topbar {
+  max-width: 1180px;
+  margin: auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
 }
-
 .logo {
-  font-size: 28px;
-  font-weight: bold;
+  border: 0;
+  background: none;
+  color: white;
+  font-size: 25px;
+  font-weight: 900;
   letter-spacing: 2px;
+  padding: 4px 0;
+  white-space: nowrap;
 }
-
-.logo span {
-  color: #aaa;
+.logo span { color: #aaa; }
+.search {
+  flex: 1;
+  display: flex;
+  min-width: 0;
+  max-width: 650px;
+  margin-left: auto;
 }
-
+.search input {
+  width: 100%;
+  min-width: 0;
+  background: #292929;
+  color: white;
+  border: 1px solid #3b3b3b;
+  border-radius: 24px 0 0 24px;
+  padding: 12px 15px;
+  outline: none;
+}
+.search input:focus { border-color: #777; }
+.search button {
+  border: 1px solid #3b3b3b;
+  border-left: 0;
+  background: #303030;
+  color: white;
+  border-radius: 0 24px 24px 0;
+  padding: 0 17px;
+}
 main {
-  max-width: 1000px;
+  width: min(1180px, 100%);
   margin: auto;
-  padding: 20px;
+  padding: 20px 16px 100px;
 }
-
-h2 {
-  font-size: 21px;
-  margin-bottom: 20px;
+nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 17px;
+  scrollbar-width: none;
 }
-
+nav::-webkit-scrollbar { display: none; }
+.nav-btn, .chip {
+  flex: 0 0 auto;
+  border: 1px solid #383838;
+  color: #ddd;
+  background: #202020;
+  border-radius: 22px;
+  padding: 9px 15px;
+}
+.nav-btn.active, .chip.active {
+  color: white;
+  background: #383838;
+  border-color: #666;
+}
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 16px;
+}
+h1 { font-size: 22px; margin: 0; }
+#resultCount { color: var(--muted); font-size: 13px; }
+#playerArea {
+  display: none;
+  margin: 5px 0 28px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.player-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.back, .save-player {
+  border: 1px solid #505050;
+  border-radius: 9px;
+  padding: 9px 12px;
+  color: white;
+  background: #292929;
+}
+#player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: black;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#player iframe { width: 100%; height: 100%; border: 0; }
+#playerTitle { margin: 12px 0 5px; font-size: 18px; }
+#playerChannel { color: var(--muted); margin: 0; font-size: 14px; }
 .videos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 18px;
 }
-
 .video {
-  background: #1d1d1d;
+  min-width: 0;
+  background: var(--surface);
+  border: 1px solid #252525;
   border-radius: 12px;
   overflow: hidden;
-  cursor: pointer;
-  transition: transform .2s;
+  transition: transform .18s, border-color .18s;
 }
-
-.video:active {
-  transform: scale(.98);
+.video:active { transform: scale(.99); }
+.thumb-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: #080808;
+  position: relative;
 }
-
-.video img {
+.thumb-button img {
   width: 100%;
   display: block;
   aspect-ratio: 16 / 9;
   object-fit: cover;
 }
-
-.info {
-  padding: 14px;
+.play-mark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 38px;
+  text-shadow: 0 2px 8px #000;
+  opacity: 0;
+  transition: opacity .15s;
 }
-
-.info h3 {
-  font-size: 16px;
-  margin: 0 0 9px;
+.thumb-button:hover .play-mark { opacity: 1; }
+.info { padding: 12px; }
+.info h2 {
+  font-size: 15px;
+  line-height: 1.35;
+  margin: 0 0 7px;
 }
-
-.info p {
-  color: #aaa;
-  margin: 0;
-  font-size: 13px;
-}
-
-#playerArea {
-  display: none;
-  margin-bottom: 30px;
-}
-
-#player {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: black;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-#player iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-#playerTitle {
-  font-size: 18px;
+.channel { color: var(--muted); font-size: 13px; margin: 0; }
+.card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   margin-top: 12px;
 }
-
-.back {
-  margin: 0 0 12px;
-  padding: 10px 16px;
-  border: 1px solid #555;
+.watch-btn, .save-btn {
+  border: 1px solid #454545;
   border-radius: 8px;
-  background: #292929;
   color: white;
-  cursor: pointer;
+  background: #292929;
+  padding: 8px 10px;
+  font-size: 13px;
 }
-
+.save-btn.saved { border-color: #888; background: #414141; }
+.empty {
+  display: none;
+  color: var(--muted);
+  text-align: center;
+  padding: 45px 15px;
+  border: 1px dashed #444;
+  border-radius: 12px;
+}
+#profileArea {
+  display: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px;
+  color: #ddd;
+}
 footer {
   text-align: center;
   color: #777;
-  padding: 30px 10px;
-  font-size: 13px;
+  padding: 24px 12px 35px;
+  font-size: 12px;
+  border-top: 1px solid #242424;
+}
+@media (max-width: 560px) {
+  header { padding: 11px 12px; }
+  .topbar { gap: 10px; }
+  .logo { font-size: 21px; }
+  .search input { padding: 10px 11px; font-size: 14px; }
+  .search button { padding: 0 13px; }
+  main { padding: 14px 12px 90px; }
+  .videos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .info { padding: 9px; }
+  .info h2 { font-size: 13px; }
+  .channel { font-size: 12px; }
+  .card-actions { flex-wrap: wrap; }
+  .watch-btn, .save-btn { padding: 7px 8px; font-size: 12px; }
+  h1 { font-size: 19px; }
+}
+@media (max-width: 350px) {
+  .videos { grid-template-columns: 1fr; }
 }
 </style>
 </head>
-
 <body>
-
 <header>
-  <div class="logo">VID<span>EX</span></div>
-  <div>▶ Vídeos</div>
+  <div class="topbar">
+    <button class="logo" onclick="irPara('inicio')" aria-label="VIDEX início">VID<span>EX</span></button>
+    <form class="search" id="searchForm">
+      <input id="searchInput" type="search" placeholder="Pesquisar vídeos..." aria-label="Pesquisar vídeos">
+      <button type="submit" aria-label="Pesquisar">⌕</button>
+    </form>
+  </div>
 </header>
 
 <main>
+  <nav aria-label="Menu principal">
+    <button class="nav-btn active" data-page="inicio">Início</button>
+    <button class="nav-btn" data-page="explorar">Explorar</button>
+    <button class="nav-btn" data-page="games">Games</button>
+    <button class="nav-btn" data-page="lista">Minha lista</button>
+    <button class="nav-btn" data-page="perfil">Perfil</button>
+  </nav>
 
   <section id="playerArea">
-    <button class="back" onclick="fecharVideo()">← Voltar</button>
+    <div class="player-top">
+      <button class="back" onclick="fecharVideo()">← Voltar</button>
+      <button class="save-player" id="playerSave" onclick="alternarSalvo(videoAtual)">＋ Salvar</button>
+    </div>
     <div id="player"></div>
-    <h3 id="playerTitle"></h3>
-    <p style="color:#aaa">@Jazzghost</p>
+    <h2 id="playerTitle"></h2>
+    <p id="playerChannel"></p>
   </section>
 
-  <h2>Vídeos para assistir</h2>
-
-  <section class="videos">
-
-    <article class="video" onclick="assistir('J_vCoFgAkYA', 'MINECRAFT, MAS OS MOBS DROPAM')">
-      <img
-        src="https://i.ytimg.com/vi/J_vCoFgAkYA/hqdefault.jpg"
-        alt="Capa do vídeo Minecraft, mas os mobs dropam"
-      >
-      <div class="info">
-        <h3>MINECRAFT, MAS OS MOBS DROPAM</h3>
-        <p>@Jazzghost</p>
-      </div>
-    </article>
-
-    <article class="video" onclick="assistir('7xV2g8yAcUg', 'LITTLE NIGHTMARES 3 (Parte 1)')">
-      <img
-        src="https://i.ytimg.com/vi/7xV2g8yAcUg/hqdefault.jpg"
-        alt="Capa do vídeo Little Nightmares 3"
-      >
-      <div class="info">
-        <h3>LITTLE NIGHTMARES 3 (Parte 1)</h3>
-        <p>@Jazzghost</p>
-      </div>
-    </article>
-
+  <section id="profileArea">
+    <h1>Perfil VIDEX</h1>
+    <p>Bem-vindo ao seu espaço no VIDEX.</p>
+    <p>Os vídeos que você salvar ficam disponíveis em <strong>Minha lista</strong> neste aparelho.</p>
   </section>
 
+  <section id="catalogArea">
+    <div class="section-head">
+      <h1 id="sectionTitle">Vídeos para assistir</h1>
+      <span id="resultCount"></span>
+    </div>
+    <section class="videos" id="videoGrid"></section>
+    <div class="empty" id="emptyState">Nenhum vídeo encontrado. Tente outra pesquisa.</div>
+  </section>
 </main>
 
-<footer>
-  VIDEX © 2026 — Seu mundo de vídeos.
-</footer>
+<footer>VIDEX © 2026 — Seu mundo de vídeos.</footer>
 
 <script>
-function assistir(id, titulo) {
-  document.getElementById("playerArea").style.display = "block";
-  document.getElementById("playerTitle").textContent = titulo;
+const videos = [
+  {
+    id: "J_vCoFgAkYA",
+    title: "MINECRAFT, MAS OS MOBS DROPAM",
+    channel: "@Jazzghost",
+    category: "games"
+  },
+  {
+    id: "7xV2g8yAcUg",
+    title: "LITTLE NIGHTMARES 3 (Parte 1)",
+    channel: "@Jazzghost",
+    category: "games"
+  },
+  {
+    id: "YFE2TDPBtgw",
+    title: "LITTLE NIGHTMARES 3 (Parte 2)",
+    channel: "@Jazzghost",
+    category: "games"
+  },
+  {
+    id: "9zeFoLY-Yds",
+    title: "PASSEI A NOITE EM UMA LOJA DE DOCES JAPONESA SEM NING...",
+    channel: "Enaldinho",
+    category: "explorar"
+  },
+  {
+    id: "0BjlBnfHcHM",
+    title: "Beat Ronaldo, Win $1,000,000",
+    channel: "@MrBeast",
+    category: "explorar"
+  },
+  {
+    id: "I6_05oeRIcQ",
+    title: "O JOGO DE TERROR ULTRA REALISTA DE FIVE NIGHTS AT F...",
+    channel: "Jazzghost",
+    category: "games"
+  },
+  {
+    id: "JBy1T5IykkU",
+    title: "First To Find $1,000,000, Keeps It!",
+    channel: "MrBeast 2 e Salesforce",
+    category: "explorar"
+  },
+  {
+    id: "KXNhq6bpiN4",
+    title: "Testei Todas as Experiências da Copa do Mundo",
+    channel: "Neagle",
+    category: "explorar"
+  },
+  {
+    id: "qk9q0peumRs",
+    title: "Sobrevivi no Hotel mais Perigoso dos Estados Unidos",
+    channel: "Neagle",
+    category: "explorar"
+  }
+];
 
+let paginaAtual = "inicio";
+let videoAtual = null;
+let termoBusca = "";
+let salvos = [];
+try {
+  salvos = JSON.parse(localStorage.getItem("videx_salvos") || "[]");
+  if (!Array.isArray(salvos)) salvos = [];
+} catch (e) { salvos = []; }
+
+const grid = document.getElementById("videoGrid");
+const playerArea = document.getElementById("playerArea");
+
+function renderizar() {
+  let lista = videos.filter(v => {
+    const termo = (v.title + " " + v.channel).toLocaleLowerCase("pt-BR");
+    const correspondeBusca = termo.includes(termoBusca.toLocaleLowerCase("pt-BR"));
+    const correspondePagina =
+      paginaAtual === "inicio" || paginaAtual === "explorar" ||
+      (paginaAtual === "games" && v.category === "games") ||
+      (paginaAtual === "lista" && salvos.includes(v.id));
+    return correspondeBusca && correspondePagina;
+  });
+
+  grid.innerHTML = "";
+  lista.forEach(v => {
+    const salvo = salvos.includes(v.id);
+    const card = document.createElement("article");
+    card.className = "video";
+
+    const thumb = document.createElement("button");
+    thumb.className = "thumb-button";
+    thumb.setAttribute("aria-label", "Assistir " + v.title);
+    thumb.innerHTML = '<img src="https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg" alt="Capa: ' +
+      escapar(v.title) + '" loading="lazy"><span class="play-mark">▶</span>';
+    thumb.addEventListener("click", () => assistir(v.id));
+
+    const info = document.createElement("div");
+    info.className = "info";
+    info.innerHTML = '<h2>' + escapar(v.title) + '</h2><p class="channel">' +
+      escapar(v.channel) + '</p>';
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const watch = document.createElement("button");
+    watch.className = "watch-btn";
+    watch.textContent = "▶ Assistir";
+    watch.addEventListener("click", () => assistir(v.id));
+
+    const save = document.createElement("button");
+    save.className = "save-btn" + (salvo ? " saved" : "");
+    save.textContent = salvo ? "✓ Salvo" : "＋ Minha lista";
+    save.addEventListener("click", () => alternarSalvo(v.id));
+
+    actions.append(watch, save);
+    info.appendChild(actions);
+    card.append(thumb, info);
+    grid.appendChild(card);
+  });
+
+  document.getElementById("emptyState").style.display = lista.length ? "none" : "block";
+  document.getElementById("resultCount").textContent = lista.length + (lista.length === 1 ? " vídeo" : " vídeos");
+  document.getElementById("catalogArea").style.display = paginaAtual === "perfil" ? "none" : "block";
+  document.getElementById("profileArea").style.display = paginaAtual === "perfil" ? "block" : "none";
+
+  const titulos = {
+    inicio: "Vídeos para assistir",
+    explorar: "Explorar vídeos",
+    games: "Games",
+    lista: "Minha lista",
+    perfil: "Perfil"
+  };
+  document.getElementById("sectionTitle").textContent = titulos[paginaAtual] || titulos.inicio;
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.page === paginaAtual);
+  });
+}
+
+function escapar(texto) {
+  return String(texto).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[c]);
+}
+
+function assistir(id) {
+  const v = videos.find(item => item.id === id);
+  if (!v) return;
+  videoAtual = id;
+  playerArea.style.display = "block";
+  document.getElementById("playerTitle").textContent = v.title;
+  document.getElementById("playerChannel").textContent = v.channel;
+  document.getElementById("playerSave").textContent = salvos.includes(id) ? "✓ Salvo" : "＋ Salvar";
   document.getElementById("player").innerHTML =
-    '<iframe src="https://www.youtube.com/embed/' + id +
-    '?playsinline=1" title="VIDEX Player" ' +
+    '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) +
+    '?playsinline=1&rel=0" title="VIDEX Player" ' +
     'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
     'allowfullscreen></iframe>';
-
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function fecharVideo() {
   document.getElementById("player").innerHTML = "";
-  document.getElementById("playerArea").style.display = "none";
+  playerArea.style.display = "none";
+  videoAtual = null;
 }
-</script>
 
+function alternarSalvo(id) {
+  if (!id) return;
+  if (salvos.includes(id)) salvos = salvos.filter(x => x !== id);
+  else salvos.push(id);
+  try { localStorage.setItem("videx_salvos", JSON.stringify(salvos)); } catch (e) {}
+  if (videoAtual) {
+    document.getElementById("playerSave").textContent =
+      salvos.includes(videoAtual) ? "✓ Salvo" : "＋ Salvar";
+  }
+  renderizar();
+}
+
+function irPara(pagina) {
+  paginaAtual = pagina;
+  termoBusca = "";
+  document.getElementById("searchInput").value = "";
+  fecharVideo();
+  renderizar();
+}
+
+document.querySelectorAll(".nav-btn").forEach(btn => {
+  btn.addEventListener("click", () => irPara(btn.dataset.page));
+});
+
+document.getElementById("searchForm").addEventListener("submit", event => {
+  event.preventDefault();
+  termoBusca = document.getElementById("searchInput").value.trim();
+  if (paginaAtual === "perfil") paginaAtual = "inicio";
+  fecharVideo();
+  renderizar();
+});
+
+document.getElementById("searchInput").addEventListener("input", event => {
+  termoBusca = event.target.value.trim();
+  if (paginaAtual === "perfil") paginaAtual = "inicio";
+  renderizar();
+});
+
+renderizar();
+</script>
 </body>
-  </html>
+        </html>
+
 
  
      
