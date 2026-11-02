@@ -8,195 +8,272 @@
 <title>VIDEX</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding-bottom:80px}
-header{padding:17px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#101010;z-index:5}
-.logo{font-size:27px;font-weight:900}
-.logo span{border:2px solid white;border-radius:7px;padding:2px 5px}
-.search{padding:0 15px 15px}
-input{width:100%;padding:14px;border-radius:25px;background:#252525;color:white;border:1px solid #444;font-size:15px}
-.categories{display:flex;gap:8px;overflow:auto;padding:0 15px 18px}
-button{border:0;border-radius:22px;padding:11px 16px;background:#292929;color:white;white-space:nowrap}
-.active{background:white;color:black}
-h2{font-size:19px;margin:17px 15px}
-.card{margin:15px 12px 23px}
-.thumb{height:190px;border-radius:13px;background:linear-gradient(135deg,#555,#171717);display:flex;align-items:center;justify-content:center;font-size:45px;position:relative}
-.thumb small{position:absolute;bottom:9px;right:9px;background:#000;padding:5px;border-radius:5px;font-size:12px}
-.info{display:flex;gap:10px;padding:12px 3px}
-.avatar{width:38px;height:38px;border-radius:50%;background:#444;display:grid;place-items:center}
-.info p{font-size:12px;color:#aaa;margin:6px 0}
-.info h3{font-size:15px;margin:0}
+body{margin:0;background:#101010;color:white;font-family:Arial,sans-serif;padding-bottom:85px}
+header{position:sticky;top:0;background:#101010;padding:16px;z-index:5;border-bottom:1px solid #333}
+.logo{font-size:27px;font-weight:900;letter-spacing:2px}
+.logo span{color:#aaa}
+.search{width:100%;padding:13px;border-radius:25px;background:#252525;color:white;border:1px solid #444;font-size:15px;margin-top:15px}
+.categories{display:flex;gap:8px;overflow-x:auto;padding:12px 0}
+button{border:0;border-radius:22px;padding:11px 16px;background:#292929;color:white;font-weight:bold;cursor:pointer}
+button.active,.primary{background:white;color:black}
+main{padding:15px}
+h2{font-size:19px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{background:#1c1c1c;border-radius:13px;overflow:hidden;cursor:pointer}
+.thumb{width:100%;aspect-ratio:16/9;object-fit:cover;background:#333;display:block}
+.info{padding:10px}
+.info h3{font-size:14px;margin:0 0 6px}
+.info p{font-size:12px;color:#aaa;margin:0}
+.playerbox,.panel{background:#202020;border-radius:14px;padding:13px;margin:14px 0}
+#player iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px}
+input{width:100%;padding:13px;border-radius:9px;background:#111;color:white;border:1px solid #555;margin:7px 0}
+.small{font-size:12px;color:#aaa;line-height:1.5}
+nav{position:fixed;bottom:0;left:0;right:0;background:#181818;border-top:1px solid #333;display:flex;justify-content:space-around;padding:10px 2px;z-index:10}
+nav button{background:none;padding:8px 5px;font-size:11px}
 .section{display:none}
 .section.show{display:block}
-nav{position:fixed;bottom:0;left:0;right:0;background:#181818;border-top:1px solid #333;display:flex;justify-content:space-around;padding:10px 2px}
-nav button{background:none;font-size:11px;padding:5px;display:flex;flex-direction:column;gap:5px}
-nav b{font-size:21px}
-#player{margin:15px 12px}
-iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px}
-.panel{margin:15px;padding:15px;background:#222;border-radius:14px}
-.panel input{margin:8px 0}
-.panel button{margin-top:8px;background:white;color:black}
-.note{color:#aaa;font-size:12px;line-height:1.5}
+.row{display:flex;gap:7px}
+.row button{white-space:nowrap}
+.notice{color:#bbb;font-size:12px;line-height:1.5}
 </style>
 </head>
 <body>
+
 <header>
- <div class="logo"><span>▶</span> VIDEX</div>
- <button onclick="alert('Notificações em breve!')">♧</button>
+  <div class="logo">VID<span>EX</span></div>
+  <input class="search" id="search" placeholder="Pesquisar vídeos..." oninput="filterVideos()">
+  <div class="categories">
+    <button class="active" onclick="filterCategory('Todos',this)">Todos</button>
+    <button onclick="filterCategory('Música',this)">Música</button>
+    <button onclick="filterCategory('Jogos',this)">Jogos</button>
+    <button onclick="filterCategory('Humor',this)">Humor</button>
+    <button onclick="filterCategory('Futebol',this)">Futebol</button>
+  </div>
 </header>
 
-<div class="search">
- <input id="search" placeholder="⌕ Pesquisar vídeos..." oninput="filterVideos()">
-</div>
+<main>
+<section id="home" class="section show">
+  <h2>Vídeos do VIDEX</h2>
+  <div id="videos" class="grid"></div>
+  <p id="empty" class="notice">Adicione vídeos ou canais para começar a montar sua biblioteca.</p>
+</section>
 
-<div class="categories">
- <button class="active" onclick="filterCategory('Todos',this)">Todos</button>
- <button onclick="filterCategory('Música',this)">Música</button>
- <button onclick="filterCategory('Jogos',this)">Jogos</button>
- <button onclick="filterCategory('Humor',this)">Humor</button>
- <button onclick="filterCategory('Futebol',this)">Futebol</button>
-</div>
+<section id="watch" class="section">
+  <h2>Assistir no VIDEX</h2>
+  <div class="playerbox">
+    <div id="player"><p class="notice">Escolha um vídeo para assistir aqui.</p></div>
+    <h3 id="playingTitle">Nenhum vídeo selecionado</h3>
+    <p class="small" id="playingChannel"></p>
+  </div>
+  <div class="panel">
+    <h3>Adicionar vídeo pelo link</h3>
+    <input id="videoLink" placeholder="Cole o link do vídeo do YouTube">
+    <input id="videoTitle" placeholder="Nome do vídeo (opcional)">
+    <input id="videoChannel" placeholder="Nome do canal (opcional)">
+    <button class="primary" onclick="addVideo()">Adicionar vídeo</button>
+    <p class="small">O vídeo será exibido no player do VIDEX quando o proprietário permitir incorporação.</p>
+  </div>
+</section>
 
-<main id="home" class="section show">
-<h2>🔥 Vídeos do momento</h2>
-
-<div id="videos">
- <article class="card" data-category="Humor">
-  <div class="thumb">😂</div>
-  <div class="info"><div class="avatar">E</div><div>
-   <h3>Enaldinho — vídeos e desafios</h3>
-   <p>Encontre vídeos do canal Enaldinho</p>
-   <button onclick="youtubeSearch('Enaldinho')">Ver vídeos</button>
-  </div></div>
- </article>
-
- <article class="card" data-category="Humor">
-  <div class="thumb">🎬</div>
-  <div class="info"><div class="avatar">M</div><div>
-   <h3>MrBeast — desafios incríveis</h3>
-   <p>Encontre vídeos do MrBeast</p>
-   <button onclick="youtubeSearch('MrBeast')">Ver vídeos</button>
-  </div></div>
- </article>
-
- <article class="card" data-category="Jogos">
-  <div class="thumb">🎮</div>
-  <div class="info"><div class="avatar">G</div><div>
-   <h3>Gameplays e diversão</h3>
-   <p>Jogos e criadores brasileiros</p>
-   <button onclick="youtubeSearch('gameplays brasileiros')">Ver vídeos</button>
-  </div></div>
- </article>
-
- <article class="card" data-category="Futebol">
-  <div class="thumb">⚽</div>
-  <div class="info"><div class="avatar">F</div><div>
-   <h3>Melhores vídeos de futebol</h3>
-   <p>Desafios e momentos do futebol</p>
-   <button onclick="youtubeSearch('melhores vídeos futebol')">Ver vídeos</button>
-  </div></div>
- </article>
-</div>
-</main>
-
-<section id="shorts" class="section">
-<h2>VIDEX Shorts</h2>
-<div class="panel">
- <h3>Vídeos curtos</h3>
- <p>Em breve: vídeos verticais para assistir sem parar!</p>
-</div>
+<section id="channels" class="section">
+  <h2>Canais</h2>
+  <div class="panel">
+    <h3>Adicionar canal do YouTube</h3>
+    <input id="channelId" placeholder="Cole o ID do canal (UC...)">
+    <button class="primary" onclick="addChannel()">Adicionar canal</button>
+    <p class="small">Use o ID do canal, não apenas o nome ou @usuário. O VIDEX buscará os vídeos recentes pelo feed RSS público.</p>
+  </div>
+  <div id="channelList"></div>
+  <p class="notice">A busca de feeds usa o serviço RSS2JSON. Ele possui limites e pode ficar indisponível. Não é uma busca completa de todo o YouTube.</p>
 </section>
 
 <section id="publish" class="section">
-<h2>Publicar no VIDEX</h2>
-<div class="panel">
- <h3>Seu vídeo começa aqui!</h3>
- <input id="title" placeholder="Título do vídeo">
- <input id="videoFile" type="file" accept="video/*">
- <p class="note">Esta é uma prévia local. Para publicar para outras pessoas, ainda vamos conectar o armazenamento e o servidor.</p>
- <button onclick="previewVideo()">Ver prévia</button>
- <div id="preview"></div>
-</div>
-</section>
-
-<section id="subscriptions" class="section">
-<h2>Inscrições</h2>
-<div class="panel">Seus canais favoritos aparecerão aqui.</div>
+  <h2>Publicar no VIDEX</h2>
+  <div class="panel">
+    <h3>Pré-visualizar vídeo do celular</h3>
+    <input id="localTitle" placeholder="Título do vídeo">
+    <input id="videoFile" type="file" accept="video/*">
+    <button class="primary" onclick="previewLocal()">Pré-visualizar</button>
+    <div id="preview"></div>
+    <p class="small">A pré-visualização é local. Para publicar vídeos próprios para todos os usuários, será necessário criar um servidor e armazenamento.</p>
+  </div>
 </section>
 
 <section id="library" class="section">
-<h2>Biblioteca</h2>
-<div class="panel">Seus vídeos favoritos e histórico aparecerão aqui.</div>
+  <h2>Biblioteca</h2>
+  <div class="panel">
+    <p>Seus vídeos adicionados ficam salvos neste navegador.</p>
+    <button onclick="showPage('home')">Ver vídeos</button>
+  </div>
 </section>
-
-<section id="youtube" class="section">
-<h2>▶ Assistir no VIDEX</h2>
-<div class="panel">
- <h3>Adicionar vídeo do YouTube</h3>
- <input id="youtubeUrl" placeholder="Cole o link do YouTube aqui">
- <button onclick="playYoutube()">Assistir vídeo</button>
- <p class="note">O vídeo será reproduzido aqui quando permitir incorporação.</p>
-</div>
-<div id="player"></div>
-</section>
+</main>
 
 <nav>
-<button class="selected" onclick="showPage('home',this)"><b>⌂</b>Início</button>
-<button onclick="showPage('shorts',this)"><b>▷</b>Shorts</button>
-<button onclick="showPage('publish',this)"><b>＋</b>Publicar</button>
-<button onclick="showPage('subscriptions',this)"><b>♧</b>Inscrições</button>
-<button onclick="showPage('library',this)"><b>▤</b>Biblioteca</button>
+<button onclick="showPage('home')">⌂<br>Início</button>
+<button onclick="showPage('channels')">▤<br>Canais</button>
+<button onclick="showPage('watch')">▶<br>Assistir</button>
+<button onclick="showPage('publish')">＋<br>Publicar</button>
+<button onclick="showPage('library')">▣<br>Biblioteca</button>
 </nav>
 
 <script>
-function showPage(id,btn){
- document.querySelectorAll('.section').forEach(x=>x.classList.remove('show'));
+let videos=JSON.parse(localStorage.getItem('videxVideos')||'[]');
+let channels=JSON.parse(localStorage.getItem('videxChannels')||'[]');
+let currentCategory='Todos';
+
+function save(){
+ localStorage.setItem('videxVideos',JSON.stringify(videos));
+ localStorage.setItem('videxChannels',JSON.stringify(channels));
+}
+
+function getId(url){
+ try{
+  let u=new URL(url);
+  if(u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('/')[0];
+  if(u.searchParams.get('v')) return u.searchParams.get('v');
+  let parts=u.pathname.split('/');
+  let i=parts.findIndex(x=>['embed','shorts','live'].includes(x));
+  if(i>=0)return parts[i+1];
+ }catch(e){}
+ return '';
+}
+
+function validId(id){return /^[a-zA-Z0-9_-]{11}$/.test(id)}
+
+function render(){
+ let box=document.getElementById('videos');
+ box.innerHTML='';
+ let q=document.getElementById('search').value.toLowerCase();
+ let shown=videos.filter(v=>
+  (currentCategory==='Todos'||v.category===currentCategory)&&
+  (v.title+' '+v.channel).toLowerCase().includes(q)
+ );
+ document.getElementById('empty').style.display=shown.length?'none':'block';
+ shown.forEach(v=>{
+  let card=document.createElement('article');
+  card.className='card';
+  let img=document.createElement('img');
+  img.className='thumb';
+  img.src='https://i.ytimg.com/vi/'+v.id+'/hqdefault.jpg';
+  img.alt='Capa do vídeo';
+  img.onerror=()=>img.src='https://i.ytimg.com/vi/'+v.id+'/mqdefault.jpg';
+  let info=document.createElement('div');
+  info.className='info';
+  let title=document.createElement('h3');
+  title.textContent=v.title;
+  let channel=document.createElement('p');
+  channel.textContent=v.channel||'YouTube';
+  info.append(title,channel);
+  card.append(img,info);
+  card.onclick=()=>playVideo(v);
+  box.append(card);
+ });
+ renderChannels();
+}
+
+function playVideo(v){
+ showPage('watch');
+ document.getElementById('playingTitle').textContent=v.title;
+ document.getElementById('playingChannel').textContent=v.channel||'';
+ document.getElementById('player').innerHTML=
+  '<iframe src="https://www.youtube-nocookie.com/embed/'+v.id+'?autoplay=1&playsinline=1" title="Player VIDEX" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+}
+
+function addVideo(){
+ let id=getId(document.getElementById('videoLink').value.trim());
+ if(!validId(id)){alert('Cole um link válido de vídeo do YouTube.');return}
+ if(videos.some(v=>v.id===id)){alert('Esse vídeo já está no VIDEX.');return}
+ videos.unshift({
+  id,
+  title:document.getElementById('videoTitle').value.trim()||'Vídeo do YouTube',
+  channel:document.getElementById('videoChannel').value.trim()||'Canal do YouTube',
+  category:'Todos'
+ });
+ save();render();
+ document.getElementById('videoLink').value='';
+ document.getElementById('videoTitle').value='';
+ document.getElementById('videoChannel').value='';
+ playVideo(videos[0]);
+}
+
+async function addChannel(){
+ let id=document.getElementById('channelId').value.trim();
+ if(!/^UC[a-zA-Z0-9_-]{20,}$/.test(id)){
+  alert('Confira o ID do canal. Ele começa com UC.');
+  return;
+ }
+ if(channels.includes(id)){alert('Esse canal já foi adicionado.');return}
+ channels.push(id);save();render();
+ document.getElementById('channelId').value='';
+ await loadChannel(id);
+}
+
+async function loadChannel(id){
+ let feed='https://www.youtube.com/feeds/videos.xml?channel_id='+id;
+ let endpoint='https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed);
+ try{
+  let response=await fetch(endpoint);
+  let data=await response.json();
+  if(data.status!=='ok')throw new Error('Feed indisponível');
+  data.items.forEach(item=>{
+   let videoId=getId(item.link);
+   if(validId(videoId)&&!videos.some(v=>v.id===videoId)){
+    videos.push({
+     id:videoId,
+     title:item.title||'Vídeo do canal',
+     channel:data.feed.title||'Canal do YouTube',
+     category:'Todos'
+    });
+   }
+  });
+  save();render();
+ }catch(e){
+  alert('Não foi possível carregar esse canal agora. Confira o ID ou tente novamente mais tarde.');
+ }
+}
+
+function renderChannels(){
+ let box=document.getElementById('channelList');
+ if(!box)return;
+ box.innerHTML='';
+ channels.forEach(id=>{
+  let div=document.createElement('div');
+  div.className='panel';
+  let p=document.createElement('p');
+  p.textContent='Canal: '+id;
+  let b=document.createElement('button');
+  b.textContent='Atualizar vídeos';
+  b.onclick=()=>loadChannel(id);
+  div.append(p,b);box.append(div);
+ });
+}
+
+function filterVideos(){render()}
+function filterCategory(cat,btn){
+ currentCategory=cat;
+ document.querySelectorAll('.categories button').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');render();
+}
+
+function showPage(id){
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('show'));
  document.getElementById(id).classList.add('show');
- document.querySelectorAll('nav button').forEach(x=>x.classList.remove('selected'));
- btn.classList.add('selected');
  window.scrollTo(0,0);
 }
-function youtubeSearch(q){
- window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q),'_blank');
+
+function previewLocal(){
+ let file=document.getElementById('videoFile').files[0];
+ if(!file){alert('Escolha um vídeo primeiro.');return}
+ let url=URL.createObjectURL(file);
+ document.getElementById('preview').innerHTML='';
+ let video=document.createElement('video');
+ video.src=url;video.controls=true;video.style.width='100%';video.style.marginTop='12px';
+ document.getElementById('preview').append(video);
 }
-function filterVideos(){
- let q=document.getElementById('search').value.toLowerCase();
- document.querySelectorAll('.card').forEach(v=>{
- v.style.display=v.innerText.toLowerCase().includes(q)?'':'none';
- });
-}
-function filterCategory(cat,btn){
- document.querySelectorAll('.categories button').forEach(b=>b.classList.remove('active'));
- btn.classList.add('active');
- document.querySelectorAll('.card').forEach(v=>{
- v.style.display=cat==='Todos'||v.dataset.category===cat?'':'none';
- });
-}
-function playYoutube(){
- let url=document.getElementById('youtubeUrl').value.trim();
- let id='';
- try{
- let u=new URL(url);
- if(u.hostname.includes('youtu.be')) id=u.pathname.slice(1);
- else if(u.pathname==='/watch') id=u.searchParams.get('v');
- else if(u.pathname.startsWith('/embed/')) id=u.pathname.split('/')[2];
- else if(u.pathname.startsWith('/shorts/')) id=u.pathname.split('/')[2];
- }catch(e){}
- if(!id||! /^[a-zA-Z0-9_-]{11}$/.test(id)){
- alert('Cole um link válido de vídeo do YouTube.');
- return;
- }
- document.getElementById('player').innerHTML=
- '<iframe src="https://www.youtube.com/embed/'+id+'" allowfullscreen allow="accelerometer; autoplay; encrypted-media; picture-in-picture"></iframe>';
-}
-function previewVideo(){
- let f=document.getElementById('videoFile').files[0];
- if(!f){alert('Escolha um vídeo primeiro!');return;}
- let url=URL.createObjectURL(f);
- document.getElementById('preview').innerHTML=
- '<video controls style="width:100%;margin-top:15px;border-radius:12px" src="'+url+'"></video>';
-}
+
+render();
 </script>
 </body>
-    </html>
+ </html>
  
      
