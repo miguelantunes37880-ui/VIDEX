@@ -145,6 +145,33 @@ h1 { font-size: 22px; margin: 0; }
 #player iframe { width: 100%; height: 100%; border: 0; }
 #playerTitle { margin: 12px 0 5px; font-size: 18px; }
 #playerChannel { color: var(--muted); margin: 0; font-size: 14px; }
+.shorts-feed {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 300px));
+  justify-content: center;
+  gap: 18px;
+}
+.short-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.short-frame {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: #000;
+}
+.short-frame iframe { width: 100%; height: 100%; border: 0; }
+.short-info { padding: 12px; }
+.short-info h2 { margin: 0 0 6px; font-size: 15px; line-height: 1.35; }
+.short-info p { color: var(--muted); margin: 0 0 10px; font-size: 13px; }
+.short-info a {
+  display: inline-block; color: white; text-decoration: none;
+  border: 1px solid #505050; border-radius: 8px;
+  padding: 8px 11px; background: #292929; font-size: 13px;
+}
+.shorts-note { color: var(--muted); text-align: center; font-size: 12px; margin-top: 16px; }
 .videos {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
@@ -267,6 +294,7 @@ footer {
     <button class="nav-btn active" data-page="inicio">Início</button>
     <button class="nav-btn" data-page="explorar">Explorar</button>
     <button class="nav-btn" data-page="games">Games</button>
+    <button class="nav-btn" data-page="shorts">Shorts</button>
     <button class="nav-btn" data-page="lista">Minha lista</button>
     <button class="nav-btn" data-page="perfil">Perfil</button>
   </nav>
@@ -279,6 +307,15 @@ footer {
     <div id="player"></div>
     <h2 id="playerTitle"></h2>
     <p id="playerChannel"></p>
+  </section>
+
+  <section id="shortsArea" style="display:none">
+    <div class="section-head">
+      <h1>Shorts para assistir</h1>
+      <span>Vídeos curtos do YouTube</span>
+    </div>
+    <div class="shorts-feed" id="shortsFeed"></div>
+    <p class="shorts-note">Se algum vídeo não tocar aqui, use o botão “Abrir no YouTube”. A reprodução incorporada depende das permissões de cada vídeo.</p>
   </section>
 
   <section id="profileArea">
@@ -300,6 +337,14 @@ footer {
 <footer>VIDEX © 2026 — Seu mundo de vídeos.</footer>
 
 <script>
+const shorts = [
+  { id: "DmH2oMJkrXg", title: "Camuflei Esses Squishy no Mercado😳", channel: "Lucan Pevidor" },
+  { id: "k4HGQqBcT8M", title: "Decorei o Quarto de Halloween", channel: "Mangrelo" },
+  { id: "g6FFs1uMD74", title: "Esse sabonete TE PAGA se você lavar a mão", channel: "Giuliana Mafra" },
+  { id: "DqvT4yWsMf8", title: "Ele Dando Comida Pra Comida", channel: "Amandinha" },
+  { id: "xWkoyERfAP4", title: "O pulo faz você travar — animação Roblox", channel: "nitiv" }
+];
+
 const videos = [
   {
     id: "J_vCoFgAkYA",
@@ -467,19 +512,54 @@ function renderizar() {
 
   document.getElementById("emptyState").style.display = lista.length ? "none" : "block";
   document.getElementById("resultCount").textContent = lista.length + (lista.length === 1 ? " vídeo" : " vídeos");
-  document.getElementById("catalogArea").style.display = paginaAtual === "perfil" ? "none" : "block";
+  document.getElementById("catalogArea").style.display = (paginaAtual === "perfil" || paginaAtual === "shorts") ? "none" : "block";
   document.getElementById("profileArea").style.display = paginaAtual === "perfil" ? "block" : "none";
+  document.getElementById("shortsArea").style.display = paginaAtual === "shorts" ? "block" : "none";
+  if (paginaAtual === "shorts") renderizarShorts();
 
   const titulos = {
     inicio: "Vídeos para assistir",
     explorar: "Explorar vídeos",
     games: "Games",
+    shorts: "Shorts",
     lista: "Minha lista",
     perfil: "Perfil"
   };
   document.getElementById("sectionTitle").textContent = titulos[paginaAtual] || titulos.inicio;
   document.querySelectorAll(".nav-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.page === paginaAtual);
+  });
+}
+
+function renderizarShorts() {
+  const feed = document.getElementById("shortsFeed");
+  feed.innerHTML = "";
+  shorts.forEach(v => {
+    const card = document.createElement("article");
+    card.className = "short-card";
+    const frame = document.createElement("div");
+    frame.className = "short-frame";
+    const iframe = document.createElement("iframe");
+    iframe.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(v.id) + "?playsinline=1&rel=0";
+    iframe.title = v.title;
+    iframe.loading = "lazy";
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+    frame.appendChild(iframe);
+    const info = document.createElement("div");
+    info.className = "short-info";
+    const title = document.createElement("h2");
+    title.textContent = v.title;
+    const channel = document.createElement("p");
+    channel.textContent = v.channel;
+    const link = document.createElement("a");
+    link.href = "https://www.youtube.com/shorts/" + encodeURIComponent(v.id);
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "Abrir no YouTube";
+    info.append(title, channel, link);
+    card.append(frame, info);
+    feed.appendChild(card);
   });
 }
 
@@ -538,21 +618,22 @@ document.querySelectorAll(".nav-btn").forEach(btn => {
 document.getElementById("searchForm").addEventListener("submit", event => {
   event.preventDefault();
   termoBusca = document.getElementById("searchInput").value.trim();
-  if (paginaAtual === "perfil") paginaAtual = "inicio";
+  if (paginaAtual === "perfil" || paginaAtual === "shorts") paginaAtual = "inicio";
   fecharVideo();
   renderizar();
 });
 
 document.getElementById("searchInput").addEventListener("input", event => {
   termoBusca = event.target.value.trim();
-  if (paginaAtual === "perfil") paginaAtual = "inicio";
+  if (paginaAtual === "perfil" || paginaAtual === "shorts") paginaAtual = "inicio";
   renderizar();
 });
 
 renderizar();
 </script>
 </body>
-  </html>
+        </html>
+      
   
   
 
